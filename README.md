@@ -1,18 +1,36 @@
 # EctoUnionExample
 
-To start your Phoenix server:
+- Start up a standard postgres container
+- Run `mix ecto.setup`
+- Start a server `iex -S mix phx.server`
+- Insert some data:
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+```elixir
+alias EctoUnionExample.Notes.Note
+alias EctoUnionExample.Notes.{Personal, Work}
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+work_note_params = %{
+    tag: :personal,
+    text: "life is great!",
+    data: %{mood: "lovely", category: "random"}
+  }
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+{:ok, %Note{data: %Work{}}} =
+  work_note_params
+  |> Note.create_changeset()
+  |> EctoUnionExample.Repo.insert()
 
-## Learn more
+personal_note_params = %{
+    tag: :personal,
+    text: "life is great!",
+    data: %{mood: "lovely", category: "random"}
+  }
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+{:ok, %Note{data: %Personal{}}} =
+  personal_note_params
+  |> Note.create_changeset()
+  |> EctoUnionExample.Repo.insert()
+
+
+EctoUnionExample.Repo.all(Note)
+```
